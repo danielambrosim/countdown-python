@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Contador Compartilhável{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header class="hdr">
+      <a class="brand" href="{{ url_for('index') }}">⏳ Contagem Regressiva</a>
+      <span class="muted">Feito em Python (Flask) • Deploy-friendly</span>
+    </header>
+
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="ftr">
+      <span class="muted">Dica: compartilhe o link do evento. Quem abrir verá a mesma contagem.</span>
+    </footer>
+  </div>
+</body>
+</html>

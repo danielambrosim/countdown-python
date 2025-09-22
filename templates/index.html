@@ -1,0 +1,56 @@
+
+{% extends "base.html" %}
+{% block title %}Criar evento • Contador Compartilhável{% endblock %}
+{% block content %}
+<section class="card">
+  <h1 class="h1">Criar novo evento</h1>
+  <form id="createForm" action="{{ url_for('create') }}" method="post" class="form">
+    <label class="lbl" for="title">Título do evento</label>
+    <input class="inp" id="title" name="title" type="text" placeholder="Ex.: Lançamento do meu app" required>
+
+    <label class="lbl" for="when">Data e hora do evento</label>
+    <input class="inp" id="when" type="datetime-local" required>
+
+    <!-- Este campo receberá a versão ISO (UTC) via JS -->
+    <input type="hidden" name="until_iso" id="until_iso">
+
+    <button class="btn btn-accent" type="submit">Criar evento</button>
+  </form>
+</section>
+
+{% if events %}
+<section class="card" style="margin-top:16px">
+  <h2 class="h2">Eventos recentes</h2>
+  <ul class="list">
+    {% for e in events %}
+      <li>
+        <a href="{{ url_for('event_page', slug=e.slug) }}">{{ e.title }}</a>
+        <span class="muted">• {{ e.until_utc }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<script>
+  // Converte datetime-local (timezone do navegador) para ISO UTC antes de enviar
+  const form = document.getElementById('createForm');
+  form.addEventListener('submit', (ev) => {
+    const title = document.getElementById('title').value.trim();
+    const when = document.getElementById('when').value;
+    if (!title || !when) {
+      ev.preventDefault();
+      alert('Preencha título e data/hora.');
+      return;
+    }
+    const local = new Date(when);
+    if (isNaN(local.getTime())) {
+      ev.preventDefault();
+      alert('Data inválida.');
+      return;
+    }
+    const iso = local.toISOString(); // UTC ISO
+    document.getElementById('until_iso').value = iso;
+  });
+</script>
+{% endblock %}
