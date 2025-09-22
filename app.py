@@ -5,19 +5,46 @@ import string
 import secrets
 from datetime import datetime, timezone
 from typing import Optional
+from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from sqlalchemy import Column, Integer, String, DateTime, create_engine, select, UniqueConstraint
 from sqlalchemy.orm import declarative_base, Session
 
+
 # -------------------- Config --------------------
-DB_URL = os.getenv("DATABASE_URL", "sqlite:///events.db")
+def normalize_db_url(url: str) -> str:
+    """Conserta formatos comuns de DATABASE_URL do Render para o SQLAlchemy 2.x."""
+    if not url:
+        return "sqlite:///events.db"
+
+    # 1) Ajusta o scheme
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
+    # 2) Garante sslmode=require em hosts do Render
+    try:
+        p = urlparse(url)
+        q = dict(parse_qsl(p.query))
+        host = p.hostname or ""
+        if "render" in host and "sslmode" not in q:
+            q["sslmode"] = "require"
+            p = p._replace(query=urlencode(q))
+            url = urlunparse(p)
+    except Exception:
+        pass
+
+    return url
+
+DB_URL = normalize_db_url(os.getenv("DATABASE_URL", "sqlite:///events.db"))
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
 
 Base = declarative_base()
-engine = create_engine(DB_URL, future=True, echo=False)
+engine = create_engine(DB_URL, future=True, echo=False, pool_pre_ping=True)
 
 class Event(Base):
     __tablename__ = "events"
