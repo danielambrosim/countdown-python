@@ -6,6 +6,10 @@
   <div class="event-head">
     <h1 class="h1" id="evTitle">{{ title }}</h1>
     <div class="share">
+          <!-- Botão de voltar para o início -->
+          <a class="btn" href="{{ url_for('index') }}">← Início</a>
+       
+          <!-- Botão de copiar link -->
       <button class="btn" id="copy">Copiar link</button>
       <span id="copyMsg" class="muted"></span>
     </div>
