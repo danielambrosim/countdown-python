@@ -17,13 +17,12 @@ def normalize_db_url(url: str) -> str:
     if not url:
         return "sqlite:///events.db"
 
-    # usar driver psycopg (v3)
+    # usa psycopg3
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql+psycopg://", 1)
     elif url.startswith("postgresql://"):
         url = url.replace("postgresql://", "postgresql+psycopg://", 1)
 
-    # garantir SSL no Render
     from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
     p = urlparse(url)
     q = dict(parse_qsl(p.query))
